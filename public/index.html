@@ -47,33 +47,39 @@
           map.setCenter(initialLocation);
         }
 
+
         function setStationMarkers(data) {
           var i = data.length;
           while(i--) {
             var station = data[i];
+            console.log(station);
             var stationLocation = new google.maps.LatLng(
               station.latitude,
               station.longitude
-            )
+            );
             var marker = new google.maps.Marker({
               position: stationLocation,
               map: map,
               title: data[i].address
             });
-
             var infoWindow = new google.maps.InfoWindow({
-              content: "<h1>Info</h1>"
+              content: "<ul><li>Available Bikes: " + station.availableBikes + "</li>"
+                     + "<li>Available Docks: " + station.availableDocks + "</li>"
+                     + "</ul>"
             });
+            infoWindow.open(map, marker);
 
-            google.maps.event.addListener(marker, 'click', function() {
-              infoWindow.open(map, marker);
-            });
+            // google.maps.event.addListener(marker, 'click', function() {
+            //   console.log(marker);
+            //   infoWindow.setContent(station.stationName);
+            //   infoWindow.open(map, marker);
+            // });
           }
         }
 
         $.ajax({
           type: 'GET',
-          url: 'http://lvh.me:4567/api/stations',
+          url: 'http://radiant-caverns-5667.herokuapp.com/api/stations',
           success: function(data) {
             setStationMarkers(JSON.parse(data).stationBeanList);
           }
