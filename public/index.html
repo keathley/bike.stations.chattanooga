@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map-canvas { height: 100% }
+    </style>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB9CL-oxHPP0BTbV4T1_iPJ3hf4vxgCBck&sensor=SET_TO_TRUE_OR_FALSE">
+    </script>
+    <script type="text/javascript">
+      var initialLocation,
+          chattanooga = new google.maps.LatLng(35.0982955, -85.238691),
+          browserSupportFlag = new Boolean();
+
+      function initialize() {
+        var mapOptions = {
+          zoom: 15
+        };
+        var map = new google.maps.Map(document.getElementById("map-canvas"),
+            mapOptions);
+
+        if(navigator.geolocation) {
+          browserSupportFlag = true;
+          navigator.geolocation.getCurrentPosition(function(pos) {
+            initialLocation = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+            map.setCenter(initialLocation);
+          }, function() {
+            handleNoGeolocation(browserSupportFlag);
+          });
+        }
+        else {
+          browserSupportFlag = false;
+          handleNoGeolocation(browserSupportFlag);
+        }
+
+        function handleNoGeolocation(errorFlag) {
+          if (errorFlag == true) {
+            alert("Geolocation service failed.");
+            initialLocation = chattanooga;
+          } else {
+            alert("your browser doesn't support geolocation.");
+          }
+          map.setCenter(initialLocation);
+        }
+
+        function setStationMarkers(data) {
+          var i = data.length;
+          while(i--) {
+            var station = data[i];
+            var stationLocation = new google.maps.LatLng(
+              station.latitude,
+              station.longitude
+            )
+            var marker = new google.maps.Marker({
+              position: stationLocation,
+              map: map,
+              title: data[i].address
+            });
+
+            var infoWindow = new google.maps.InfoWindow({
+              content: "<h1>Info</h1>"
+            });
+
+            google.maps.event.addListener(marker, 'click', function() {
+              infoWindow.open(map, marker);
+            });
+          }
+        }
+
+        $.ajax({
+          type: 'GET',
+          url: 'http://lvh.me:4567/api/stations',
+          success: function(data) {
+            setStationMarkers(JSON.parse(data).stationBeanList);
+          }
+        });
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas"/>
+  </body>
+</html>
