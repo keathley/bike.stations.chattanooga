@@ -14,7 +14,8 @@
     <script type="text/javascript">
       var initialLocation,
           chattanooga = new google.maps.LatLng(35.0982955, -85.238691),
-          browserSupportFlag = new Boolean();
+          browserSupportFlag = new Boolean(),
+          infoWindow = null;
 
       function initialize() {
         var mapOptions = {
@@ -22,6 +23,9 @@
         };
         var map = new google.maps.Map(document.getElementById("map-canvas"),
             mapOptions);
+        infoWindow = new google.maps.InfoWindow({
+          content: "holding..."
+        });
 
         if(navigator.geolocation) {
           browserSupportFlag = true;
@@ -47,6 +51,14 @@
           map.setCenter(initialLocation);
         }
 
+        $.ajax({
+          type: 'GET',
+          url: 'http://radiant-caverns-5667.herokuapp.com/api/stations',
+          success: function(data) {
+            setStationMarkers(JSON.parse(data).stationBeanList);
+          }
+        });
+
 
         function setStationMarkers(data) {
           var i = data.length;
@@ -60,30 +72,18 @@
             var marker = new google.maps.Marker({
               position: stationLocation,
               map: map,
-              title: data[i].address
+              title: data[i].address,
+              html: "<ul><li>Available Bikes: " + station.availableBikes + "</li>"
+                  + "<li>Available Docks: " + station.availableDocks + "</li>"
+                  + "</ul>"
             });
-            var infoWindow = new google.maps.InfoWindow({
-              content: "<ul><li>Available Bikes: " + station.availableBikes + "</li>"
-                     + "<li>Available Docks: " + station.availableDocks + "</li>"
-                     + "</ul>"
-            });
-            infoWindow.open(map, marker);
 
-            // google.maps.event.addListener(marker, 'click', function() {
-            //   console.log(marker);
-            //   infoWindow.setContent(station.stationName);
-            //   infoWindow.open(map, marker);
-            // });
+            google.maps.event.addListener(marker, 'click', function() {
+              infoWindow.setContent(this.html);
+              infoWindow.open(map, this);
+            });
           }
         }
-
-        $.ajax({
-          type: 'GET',
-          url: 'http://radiant-caverns-5667.herokuapp.com/api/stations',
-          success: function(data) {
-            setStationMarkers(JSON.parse(data).stationBeanList);
-          }
-        });
       }
       google.maps.event.addDomListener(window, 'load', initialize);
     </script>
