@@ -11,6 +11,7 @@ use Rack::Cors do |config|
   config.allow do |allow|
     allow.origins '*'
     allow.resource '/api/stations', :headers => :any
+    allow.resource '/api/stations/stream', :headers => :any
   end
 end
 
