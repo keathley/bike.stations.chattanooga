@@ -64,7 +64,6 @@
           var i = data.length;
           while(i--) {
             var station = data[i];
-            console.log(station);
             var stationLocation = new google.maps.LatLng(
               station.latitude,
               station.longitude
@@ -90,5 +89,23 @@
   </head>
   <body>
     <div id="map-canvas"/>
+    <script>
+      console.log("Connecting to event source");
+      var es = new EventSource('api/stations/stream');
+      es.addEventListener('message', function(e) {
+        console.log("MESSAGE");
+        console.log(e.data);
+      }, false);
+
+      es.addEventListener('open', function(e) {
+        console.log("OPEN");
+        console.log(e)
+      }, false);
+
+      es.addEventListener('error', function(e) {
+        console.log("ERROR");
+        console.log(e)
+      }, false);
+    </script>
   </body>
 </html>
