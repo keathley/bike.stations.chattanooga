@@ -59,7 +59,6 @@
           }
         });
 
-
         function setStationMarkers(data) {
           var i = data.length;
           while(i--) {
@@ -91,11 +90,11 @@
     <div id="map-canvas"/>
     <script>
       console.log("Connecting to event source");
-      var es = new EventSource('api/stations/stream');
+      var es = new EventSource('http://radiant-caverns-5667.herokuapp.com/api/stations/stream');
       es.addEventListener('message', function(e) {
         console.log("MESSAGE");
         console.log(e.data);
-      }, false);
+      }, false) ;
 
       es.addEventListener('open', function(e) {
         console.log("OPEN");

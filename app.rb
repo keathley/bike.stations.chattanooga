@@ -26,7 +26,8 @@ get "/api/stations" do
   http = Net::HTTP.new(uri.host, uri.port)
   request = Net::HTTP::Get.new(uri.request_uri)
   response = http.request(request)
-  response.body.to_json
+  json = JSON.parse(response.body)
+  json.to_json
 end
 
 get "/api/stations/stream", :provides => 'text/event-stream' do
